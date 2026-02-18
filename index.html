@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>思考訓練装置</title>
+    <style>
+        body {
+            font-family: "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", "HGS明朝E", serif;
+            background-color: #fdfdfd;
+            color: #333;
+            line-height: 2.0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            letter-spacing: 0.05em;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            padding: 60px 20px;
+            box-sizing: border-box;
+        }
+
+        .fade-in {
+            animation: fadeIn 1.5s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3 {
+            font-weight: normal;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            color: #666;
+        }
+
+        .intro {
+            margin-bottom: 4rem;
+            text-align: center;
+        }
+
+        .axis-section {
+            margin-bottom: 3rem;
+            border-left: 1px solid #ddd;
+            padding-left: 1.5rem;
+        }
+
+        .axis-title {
+            font-size: 0.9rem;
+            color: #999;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid #ccc;
+            padding: 8px 16px;
+            font-family: inherit;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            border-radius: 2px;
+        }
+
+        button:hover {
+            border-color: #888;
+            background-color: #f9f9f9;
+        }
+
+        button.selected {
+            background-color: #333;
+            color: #fff;
+            border-color: #333;
+        }
+
+        .meta-select {
+            margin-top: 4rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            padding-top: 2rem;
+        }
+
+        .meta-select button {
+            border: none;
+            border-bottom: 1px solid #ccc;
+            padding: 5px 10px;
+            color: #888;
+        }
+
+        .meta-select button:hover {
+            color: #333;
+            border-bottom: 1px solid #333;
+            background: transparent;
+        }
+
+        #result-area {
+            display: none;
+            margin-top: 3rem;
+            padding-top: 3rem;
+            border-top: 1px solid #eee;
+        }
+
+        .world-text {
+            font-size: 1.1rem;
+            margin-bottom: 4rem;
+            text-align: left;
+            white-space: pre-wrap;
+        }
+
+        .input-group {
+            margin-top: 2rem;
+        }
+
+        .input-prompt {
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            background: transparent;
+            transition: border-bottom 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-bottom: 1px solid #333;
+        }
+
+        .finish-btn-area {
+            margin-top: 3rem;
+            text-align: right;
+        }
+
+        #end-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container fade-in" id="main-interface">
+    <div class="intro">
+        <p>いまの状態を、空間として考えてみる。<br>
+        いくつかの項目を選ぶと、一つの世界が表示されます。<br>
+        それを読んで、一行だけ書いてください。</p>
+    </div>
+
+    <div id="selection-stage">
+        <div class="axis-section">
+            <span class="axis-title">位置（重心）</span>
+            <div class="options" id="axis-a">
+                <button onclick="selectOption('A', '中央に集まっている')">中央に集まっている</button>
+                <button onclick="selectOption('A', '端に寄っている')">端に寄っている</button>
+                <button onclick="selectOption('A', '上に積み上がっている')">上に積み上がっている</button>
+                <button onclick="selectOption('A', '下に沈んでいる')">下に沈んでいる</button>
+                <button onclick="selectOption('A', '外に広がっている')">外に広がっている</button>
+                <button onclick="selectOption('A', '内側に閉じている')">内側に閉じている</button>
+            </div>
+        </div>
+
+        <div class="axis-section">
+            <span class="axis-title">境界（線）</span>
+            <div class="options" id="axis-b">
+                <button onclick="selectOption('B', 'ぼやけている')">ぼやけている</button>
+                <button onclick="selectOption('B', '柔らかい')">柔らかい</button>
+                <button onclick="selectOption('B', '固い')">固い</button>
+                <button onclick="selectOption('B', 'はっきり分かれている')">はっきり分かれている</button>
+                <button onclick="selectOption('B', 'ひびが入っている')">ひびが入っている</button>
+                <button onclick="selectOption('B', '見えない')">見えない</button>
+            </div>
+        </div>
+
+        <div class="axis-section">
+            <span class="axis-title">密度（量・詰まり）</span>
+            <div class="options" id="axis-c">
+                <button onclick="selectOption('C', 'ぎゅっと詰まっている')">ぎゅっと詰まっている</button>
+                <button onclick="selectOption('C', 'すかすかしている')">すかすかしている</button>
+                <button onclick="selectOption('C', '片側に偏っている')">片側に偏っている</button>
+                <button onclick="selectOption('C', '均一に広がっている')">均一に広がっている</button>
+                <button onclick="selectOption('C', '局所的に濃い')">局所的に濃い</button>
+                <button onclick="selectOption('C', '空洞がある')">空洞がある</button>
+            </div>
+        </div>
+
+        <div class="meta-select">
+            <button onclick="skipToFreeInput()">上記のどれにも近くない</button>
+        </div>
+    </div>
+
+    <div id="result-area" class="fade-in">
+        <div id="generated-world" class="world-text"></div>
+        
+        <div class="input-group">
+            <p class="input-prompt">いまの状態を、一行だけ書いてください。</p>
+            <input type="text" id="user-thought" autocomplete="off">
+        </div>
+
+        <div class="finish-btn-area">
+            <button onclick="finishSession()">終了する</button>
+        </div>
+    </div>
+</div>
+
+<div id="end-screen">
+    <p>終了しました。</p>
+</div>
+
+<script>
+    const state = { A: null, B: null, C: null };
+
+    function selectOption(axis, value) {
+        state[axis] = value;
+
+        const container = document.getElementById(`axis-${axis.toLowerCase()}`);
+        const buttons = container.getElementsByTagName('button');
+        for (let btn of buttons) {
+            btn.classList.toggle('selected', btn.innerText === value);
+        }
+
+        if (state.A && state.B && state.C) {
+            setTimeout(generateWorld, 500);
+        }
+    }
+
+    function generateWorld() {
+        const templates = [
+            `この世界では、${state.A}があり、${state.B}の気配があり、全体は${state.C}になっているように見える`,
+            `ここでは、${state.A}のかたちをしていて、境目には${state.B}があり、空間は${state.C}に近い`,
+            `${state.A}が先にあり、そのまわりに${state.B}があり、全体は${state.C}へ傾いている`
+        ];
+
+        const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+
+        document.getElementById('selection-stage').style.display = 'none';
+        document.getElementById('result-area').style.display = 'block';
+        document.getElementById('generated-world').innerText = randomTemplate;
+    }
+
+    function skipToFreeInput() {
+        document.getElementById('selection-stage').style.display = 'none';
+        document.getElementById('result-area').style.display = 'block';
+        document.getElementById('generated-world').innerText = "まだ形にならない空間がある";
+    }
+
+    function finishSession() {
+        document.getElementById('end-screen').style.display = 'flex';
+        setTimeout(() => { location.reload(); }, 3000);
+    }
+</script>
+
+</body>
+</html>
